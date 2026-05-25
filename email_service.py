@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 465)))
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASS = os.getenv("SMTP_PASS")
-FROM_EMAIL = FROM_EMAIL = "contact@scamehospital.com"
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp-relay.brevo.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
+SMTP_USER = os.getenv("SMTP_USERNAME")
+SMTP_PASS = os.getenv("SMTP_PASSWORD")
+FROM_EMAIL = "contact@scamehospital.com"
 
 
 def send_email(to_email: str, subject: str, html_body: str):
@@ -143,6 +143,8 @@ def send_confirmation_email(
     </html>
     """
     send_email(email, subject, body)
+
+
 def send_admin_notification(admin_email: str, name: str, email: str, scam_type: str, package: str, date: str, time: str):
     subject = f"New Booking — {name} ({package})"
     body = f"""
