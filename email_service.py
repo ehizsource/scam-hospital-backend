@@ -11,7 +11,7 @@ SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
-FROM_EMAIL = "noreply@scamehospital.com"
+FROM_EMAIL ="contact@scamehospital.com"
 
 
 def send_email(to_email: str, subject: str, html_body: str):
@@ -182,4 +182,4 @@ def send_admin_notification(admin_email: str, name: str, email: str, scam_type: 
     </body>
     </html>
     """
-    send_emailsend_email(admin_email, subject, body)
+    send_email(admin_email, subject, body)
