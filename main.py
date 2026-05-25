@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -67,17 +67,17 @@ def analyze(data: dict):
     }
 
 
-@app.post("/register")
-def register(data: RegistrationRequest):
-    email_sent = True
-
+def send_received_email_safely(name: str, email: str, scam_type: str):
     try:
-        send_received_email(data.name, data.email, data.scam_type)
+        send_received_email(name, email, scam_type)
     except Exception as exc:
-        email_sent = False
         print(f"Could not send received email: {exc}")
 
-    return {"status": "ok", "email_sent": email_sent}
+
+@app.post("/register")
+def register(data: RegistrationRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(send_received_email_safely, data.name, data.email, data.scam_type)
+    return {"status": "ok", "email_queued": True}
 
 
 @app.post("/initialize-payment")
