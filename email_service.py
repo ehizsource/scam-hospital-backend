@@ -16,31 +16,26 @@ def send_email(to_email: str, subject: str, html_body: str):
         print(f"Email skipped: BREVO_API_KEY not configured. To: {to_email}, Subject: {subject}")
         return False
 
-    try:
-        print(f"Attempting to send email to {to_email} via Brevo API...")
-        print(f"API Key present: {bool(BREVO_API_KEY)}, Key prefix: {BREVO_API_KEY[:10] if BREVO_API_KEY else 'None'}")
-        response = requests.post(
-            "https://api.brevo.com/v3/smtp/email",
-            timeout=30,
-            headers={
-                "api-key": BREVO_API_KEY,
-                "Content-Type": "application/json"
-            },
-            json={
-                "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
-                "to": [{"email": to_email}],
-                "subject": subject,
-                "htmlContent": html_body
-            }
-        )
-        if response.status_code == 201:
-            print(f"Email sent successfully to {to_email}")
-            return True
-        else:
-            print(f"Email failed: {response.status_code} - {response.text}")
-            return False
-    except Exception as e:
-        print(f"Email exception: {type(e).__name__}: {e}")
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        timeout=30,
+        headers={
+            "api-key": BREVO_API_KEY,
+            "Content-Type": "application/json"
+        },
+        json={
+            "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html_body
+        }
+    )
+
+    if response.status_code == 201:
+        print(f"Email sent successfully to {to_email}")
+        return True
+    else:
+        print(f"Email failed: {response.status_code} - {response.text}")
         return False
 
 
@@ -64,8 +59,8 @@ def send_received_email(name: str, email: str, scam_type: str):
                 </p>
             </div>
             <p>Questions? Contact us at
-               <a href="mailto:help@scamehospital.com" style="color: #00d4ff;">
-               help@scamehospital.com</a>
+               <a href="mailto:contact@scamehospital.com" style="color: #00d4ff;">
+               contact@scamehospital.com</a>
             </p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;"/>
             <p style="color: #aaa; font-size: 12px; text-align: center;">
@@ -149,8 +144,8 @@ def send_confirmation_email(
             </div>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;"/>
             <p style="color: #aaa; font-size: 12px; text-align: center;">
-                Need help? <a href="mailto:help@scamehospital.com" style="color: #00d4ff;">
-                help@scamehospital.com</a><br/>
+                Need help? <a href="mailto:contact@scamehospital.com" style="color: #00d4ff;">
+                contact@scamehospital.com</a><br/>
                 © 2026 ScameHospital. All rights reserved.
             </p>
         </div>
