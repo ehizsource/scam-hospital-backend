@@ -16,26 +16,31 @@ def send_email(to_email: str, subject: str, html_body: str):
         print(f"Email skipped: BREVO_API_KEY not configured. To: {to_email}, Subject: {subject}")
         return False
 
-    response = requests.post(
-        "https://api.brevo.com/v3/smtp/email",
-        timeout=30,
-        headers={
-            "api-key": BREVO_API_KEY,
-            "Content-Type": "application/json"
-        },
-        json={
-            "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
-            "to": [{"email": to_email}],
-            "subject": subject,
-            "htmlContent": html_body
-        }
-    )
-
-    if response.status_code == 201:
-        print(f"Email sent successfully to {to_email}")
-        return True
-    else:
-        print(f"Email failed: {response.status_code} - {response.text}")
+    try:
+        print(f"Attempting to send email to {to_email} via Brevo API...")
+        print(f"API Key present: {bool(BREVO_API_KEY)}, Key prefix: {BREVO_API_KEY[:10] if BREVO_API_KEY else 'None'}")
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            timeout=30,
+            headers={
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json"
+            },
+            json={
+                "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
+                "to": [{"email": to_email}],
+                "subject": subject,
+                "htmlContent": html_body
+            }
+        )
+        if response.status_code == 201:
+            print(f"Email sent successfully to {to_email}")
+            return True
+        else:
+            print(f"Email failed: {response.status_code} - {response.text}")
+            return False
+    except Exception as e:
+        print(f"Email exception: {type(e).__name__}: {e}")
         return False
 
 
