@@ -1,32 +1,42 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
+import requests
 from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
 
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp-relay.brevo.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
-SMTP_USER = os.getenv("SMTP_USERNAME") or os.getenv("SMTP_USER")
-SMTP_PASS = os.getenv("SMTP_PASSWORD") or os.getenv("SMTP_PASS")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 FROM_EMAIL = os.getenv("SENDER_EMAIL", "contact@scamehospital.com")
+FROM_NAME = os.getenv("SENDER_NAME", "ScameHospital")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "scamehospital@gmail.com")
 
 
 def send_email(to_email: str, subject: str, html_body: str):
-    if not SMTP_USER or not SMTP_PASS:
-        print(f"Email skipped because SMTP credentials are not configured. To: {to_email}, Subject: {subject}")
-        return
+    if not BREVO_API_KEY:
+        print(f"Email skipped: BREVO_API_KEY not configured. To: {to_email}, Subject: {subject}")
+        return False
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = FROM_EMAIL
-    msg["To"] = to_email
-    msg.attach(MIMEText(html_body, "html"))
-    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-        server.login(SMTP_USER, SMTP_PASS)
-        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        timeout=30,
+        headers={
+            "api-key": BREVO_API_KEY,
+            "Content-Type": "application/json"
+        },
+        json={
+            "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html_body
+        }
+    )
+
+    if response.status_code == 201:
+        print(f"Email sent successfully to {to_email}")
+        return True
+    else:
+        print(f"Email failed: {response.status_code} - {response.text}")
+        return False
 
 
 def send_received_email(name: str, email: str, scam_type: str):
